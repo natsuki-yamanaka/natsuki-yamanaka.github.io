@@ -2,116 +2,97 @@
 <html>
   <head>
     <meta charset="utf-8">
-    <script type="text/javascript">
-    </script>
+    <script type="text/javascript" src="https://js.pay.jp/"></script>
 
     <style>
-      @supports (-webkit-appearance: -apple-pay-button) {
-        .apple-pay-button {
-            display: none;
-            -webkit-appearance: -apple-pay-button;
-        }
-        .apple-pay-button-black {
-            -apple-pay-button-style: black;
-        }
+    @supports (-webkit-appearance: -apple-pay-button) { 
+      .apple-pay-button {
+        display: inline-block;
+        -webkit-appearance: -apple-pay-button;
       }
+      .apple-pay-button-black {
+        -apple-pay-button-style: black;
+      }
+    }
+    @supports not (-webkit-appearance: -apple-pay-button) {
+      .apple-pay-button {
+        display: inline-block;
+        background-size: 100% 60%;
+        background-repeat: no-repeat;
+        background-position: 50% 50%;
+        border-radius: 5px;
+        padding: 0px;
+        box-sizing: border-box;
+        min-width: 200px;
+        min-height: 32px;
+        max-height: 64px;
+      }
+      .apple-pay-button-black {
+        background-image: -webkit-named-image(apple-pay-logo-white);
+        background-color: black;
+      }
+    }
     </style>
   </head>
   <body>
-    <script type="text/javascript" src="https://js.pay.jp/v1/"></script>
-    <button id="submit">example</button>
-
+    <h1>PAY.JP Apple Pay on the Web サンプル</h1>
+    <div id='notice' style="display:none;">
+      ここにApple Payの支払いボタンが表示されます。表示されない場合は<a href="https://pay.jp/docs/apple-pay-integrate-web" target="_blank" rel="noopener">こちら</a>の「Apple Pay on the Web が利用可能か判定する」に詳細条件を記載しておりますのでご確認ください。
+    </div>
+    <div id="apple-pay-button-wrapper" style="display:none;">
+      <div id="apple-pay-button" class="apple-pay-button apple-pay-button-black"></div>
+      ※動作確認用サンプルのため実行しても実際の決済は行われません
+    </div>
     <div>
-      apple pay
-      <div id="apple-pay-button" class="apple-pay-button apple-pay-button-black">apple pay button</div>
-
-      <script>
-        function checkAvailabilityHandler(available) {
-          console.log("apple pay availabirity checked: " + available);
-          if (available) {
-            // available=true の時にApplePayボタンを表示・有効化します
-            document.getElementById('apple-pay-button').style.display = 'inline-block';
-          } else {
-            document.getElementById('apple-pay-button').style.display = 'none';
-          }
-        }
-        function onClick() {
-          var paymentRequest = {
-            countryCode: 'JP',
-            currencyCode: 'JPY',
-            /*
-            lineItems: [
-              {
-                label: '値段が決まってない商品',
-                amount: 100,
-                type: 'pending',
-              },
-              {
-                label: '値段が決まってる商品',
-                amount: 900,
-                type: 'final',
-              }
-            ],
-            */
-            total: {
-              label: 'PAY.JP SAMPLE',
-              amount: '1000',
-            },
-            /*
-            requiredShippingContactFields: ['postalAddress', 'phone', 'email', 'name'],
-            requiredBillingContactFields: ['postalAddress'],
-            shippingMethods: [{'label': '普通便', 'detail': '到着まで２、３日', 'amount': '0', 'identifier': 'hutubin'}, {'label': 'お急ぎ便', 'detail': '到着まで１日', 'amount': '1000', 'identifier': 'oisogibin'}],
-            shippingType: 'storePickup'
-            */
-
-          };
-          var session = Payjp.applePay.buildSession(paymentRequest,
-            function (result) {
-              console.log(result);
-              /*
-              // サーバーにPAY.JPのトークンを渡して、決済完了後にApplePayのペイメントシートを閉じる例
-
-              $.post( "/your_server_endpoint", { token: result.token.id }).done(function() {
-                session.completePayment(ApplePaySession.STATUS_SUCCESS);
-              }).fail(function() {
-                session.completePayment(ApplePaySession.STATUS_FAILURE);
-              });
-              */
-              session.completePayment(ApplePaySession.STATUS_SUCCESS);
-            },
-            function (e) {
-              console.log(e);
-              if (e.error) {
-                alert(e.error.message);
-              }
-            }
-          );
-          session.begin();
-        }
-        document.getElementById('apple-pay-button').addEventListener('click', onClick);
-
-        Payjp.setPublicKey('pk_test_9a4b3b1d76a57a1249099c85');
-        console.log("starting apple pay availabirity check");
-        Payjp.applePay.checkAvailability(checkAvailabilityHandler);
-
-        var card = {
-          number: 4242424242424242,
-          cvc: 111,
-          exp_month: 12,
-          exp_year: 2020
-        }
-        document.getElementById('submit').addEventListener('click', function(){
-          Payjp.createToken(card, function(s, response) {
-            document.getElementById('result').innerText = 'Token = ' + response.id;
-          });
-        });
-
-
-
-      </script>
+      <p id="result"></p>
     </div>
 
-    <div id="result"></div>
+    <script type="text/javascript">
+      Payjp.setPublicKey('pk_test_9a4b3b1d76a57a1249099c85');
 
+      function checkAvailabilityHandler(available) {
+        if (available) {
+          document.getElementById('apple-pay-button-wrapper').style.display = 'block';
+          document.getElementById('notice').style.display = 'none';
+        } else {
+          document.getElementById('apple-pay-button-wrapper').style.display = 'none';
+          document.getElementById('notice').style.display = 'block';
+        }
+      }
+
+      function onClick() {
+        var paymentRequest = {
+          countryCode: 'JP',
+          currencyCode: 'JPY',
+          total: {
+            label: 'pay.jp sample',
+            amount: '1000'
+          }
+        };
+        var session = Payjp.applePay.buildSession(paymentRequest,
+          function (result) {
+            console.log(result);
+            /*
+            // サーバーにPAY.JPのトークンを渡して、決済完了後にApplePayのペイメントシートを閉じる例
+            $.post( "/your_server_endpoint", { token: result.token.id }).done(function() {
+              session.completePayment(ApplePaySession.STATUS_SUCCESS);
+            }).fail(function() {
+              session.completePayment(ApplePaySession.STATUS_FAILURE);
+            });
+            */
+            document.getElementById('result').innerText = 'Token = ' + result.token.id;
+            session.completePayment(ApplePaySession.STATUS_SUCCESS);
+          },
+          function (e) {
+            console.error(e);
+            alert(e.error.message);
+          }
+        );
+        session.begin();
+      }
+      document.getElementById('apple-pay-button').addEventListener('click', onClick);
+
+      Payjp.applePay.checkAvailability(checkAvailabilityHandler);
+    </script>
   </body>
 </html>
