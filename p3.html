@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html>
   <head>
@@ -48,7 +49,8 @@
     </div>
 
     <script type="text/javascript">
-      Payjp.setPublicKey('pk_test_9a4b3b1d76a57a1249099c85');
+      // Payjp.setPublicKey('pk_test_9a4b3b1d76a57a1249099c85');
+      Payjp.setPublicKey('pk_test_0383a1b8f91e8a6e3ea0e2a9');
 
       function checkAvailabilityHandler(available) {
         if (available) {
@@ -74,6 +76,7 @@
             console.log(result);
             /*
             // サーバーにPAY.JPのトークンを渡して、決済完了後にApplePayのペイメントシートを閉じる例
+
             $.post( "/your_server_endpoint", { token: result.token.id }).done(function() {
               session.completePayment(ApplePaySession.STATUS_SUCCESS);
             }).fail(function() {
