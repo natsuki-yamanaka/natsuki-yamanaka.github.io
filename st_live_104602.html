@@ -71,8 +71,8 @@ applePayButton.addEventListener('click', function onClick() {
       amount: '50'
     }
   }
-  var session = payjp.applePay.buildSession(paymentRequest, function success(r) {
-    console.log(JSON.stringify(r))
+  var session = payjp.applePay.buildSession(paymentRequest, function success(result) {
+    console.log(JSON.stringify(result))
     document.getElementById('result').innerText = 'Token = ' + result.token.id;
     session.completePayment(ApplePaySession.STATUS_SUCCESS)
   }, function failure(e) {
