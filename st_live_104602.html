@@ -48,55 +48,87 @@
     </div>
 
     <script type="text/javascript">
-      Payjp.setPublicKey('pk_live_d02a0b16c0013dd5356f34ed');
+var pk = 'pk_live_d02a0b16c0013dd5356f34ed'
+var payjp = Payjp(pk)
+if (payjp.getPublicKey() !== pk) console.error('pk...')
 
-      function checkAvailabilityHandler(available, message) {
-        if (message) {
-          console.error(message);
-          alert(message);
-        }
-        if (available) {
-          document.getElementById('apple-pay-button-wrapper').style.display = 'block';
-          document.getElementById('notice').style.display = 'none';
-        } else {
-          document.getElementById('apple-pay-button-wrapper').style.display = 'none';
-          document.getElementById('notice').style.display = 'block';
-        }
-      }
+// test retrieveAvailability
+payjp.retrieveAvailability().then((r) => console.log('retrieveAvailability', r))
 
-      function onClick() {
-        var paymentRequest = {
-          countryCode: 'JP',
-          currencyCode: 'JPY',
-          total: {
-            label: 'pay.jp sample',
-            amount: '1000'
-          }
-        };
-        var session = Payjp.applePay.buildSession(paymentRequest,
-          function (result) {
-            console.log(result);
-            /*
-            // サーバーにPAY.JPのトークンを渡して、決済完了後にApplePayのペイメントシートを閉じる例
-            $.post( "/your_server_endpoint", { token: result.token.id }).done(function() {
-              session.completePayment(ApplePaySession.STATUS_SUCCESS);
-            }).fail(function() {
-              session.completePayment(ApplePaySession.STATUS_FAILURE);
-            });
-            */
-            document.getElementById('result').innerText = 'Token = ' + result.token.id;
-            session.completePayment(ApplePaySession.STATUS_SUCCESS);
-          },
-          function (e) {
-            console.error(e);
-            alert(e.error.message);
-          }
-        );
-        session.begin();
-      }
-      document.getElementById('apple-pay-button').addEventListener('click', onClick);
+// test ApplePayOnTheWeb
+const applePayButton = document.getElementById('apple-pay-button')
+payjp.applePay.checkAvailability(function checkAvailabilityHandler(available, errMsg) {
+  console.log("apple pay availabirity checked: " + (available ? 'ok' : errMsg))
+  applePayButton.style.display = available ? 'inline-block' : 'none'
+})
+applePayButton.addEventListener('click', function onClick() {
+  var paymentRequest = {
+    countryCode: 'JP',
+    currencyCode: 'JPY',
+    total: {
+      label: 'PAY.JP SAMPLE',
+      amount: '50'
+    }
+  }
+  var session = payjp.applePay.buildSession(paymentRequest, function success(r) {
+    console.log(JSON.stringify(r))
+    document.getElementById('result').innerText = 'Token = ' + result.token.id;
+    session.completePayment(ApplePaySession.STATUS_SUCCESS)
+  }, function failure(e) {
+    console.log(JSON.stringify(e))
+  })
+  session.begin()
+})
 
-      Payjp.applePay.checkAvailability(checkAvailabilityHandler);
+      // Payjp.setPublicKey('pk_live_d02a0b16c0013dd5356f34ed');
+
+//       function checkAvailabilityHandler(available, message) {
+//         if (message) {
+//           console.error(message);
+//           alert(message);
+//         }
+//         if (available) {
+//           document.getElementById('apple-pay-button-wrapper').style.display = 'block';
+//           document.getElementById('notice').style.display = 'none';
+//         } else {
+//           document.getElementById('apple-pay-button-wrapper').style.display = 'none';
+//           document.getElementById('notice').style.display = 'block';
+//         }
+//       }
+// 
+//       function onClick() {
+//         var paymentRequest = {
+//           countryCode: 'JP',
+//           currencyCode: 'JPY',
+//           total: {
+//             label: 'pay.jp sample',
+//             amount: '1000'
+//           }
+//         };
+//         var session = Payjp.applePay.buildSession(paymentRequest,
+//           function (result) {
+//             console.log(result);
+//             /*
+//             // サーバーにPAY.JPのトークンを渡して、決済完了後にApplePayのペイメントシートを閉じる例
+//             $.post( "/your_server_endpoint", { token: result.token.id }).done(function() {
+//               session.completePayment(ApplePaySession.STATUS_SUCCESS);
+//             }).fail(function() {
+//               session.completePayment(ApplePaySession.STATUS_FAILURE);
+//             });
+//             */
+//             document.getElementById('result').innerText = 'Token = ' + result.token.id;
+//             session.completePayment(ApplePaySession.STATUS_SUCCESS);
+//           },
+//           function (e) {
+//             console.error(e);
+//             alert(e.error.message);
+//           }
+//         );
+//         session.begin();
+//       }
+//       document.getElementById('apple-pay-button').addEventListener('click', onClick);
+// 
+//       Payjp.applePay.checkAvailability(checkAvailabilityHandler);
     </script>
   </body>
 </html>
