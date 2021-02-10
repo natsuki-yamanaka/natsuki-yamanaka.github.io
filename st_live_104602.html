@@ -7,7 +7,6 @@
     <style>
     @supports (-webkit-appearance: -apple-pay-button) { 
       .apple-pay-button {
-        display: inline-block;
         -webkit-appearance: -apple-pay-button;
       }
       .apple-pay-button-black {
@@ -16,7 +15,6 @@
     }
     @supports not (-webkit-appearance: -apple-pay-button) {
       .apple-pay-button {
-        display: inline-block;
         background-size: 100% 60%;
         background-repeat: no-repeat;
         background-position: 50% 50%;
@@ -60,13 +58,6 @@ const applePayButton = document.getElementById('apple-pay-button-wrapper')
 const noticeText = document.getElementById('apple-pay-button')
 payjp.applePay.checkAvailability(function checkAvailabilityHandler(available, errMsg) {
   console.log("apple pay availabirity checked: " + (available ? 'ok' : errMsg))
-  if (available) {
-    applePayButton.style.display = 'block';
-    noticeText.style.display = 'none';
-  } else {
-    applePayButton.style.display = 'none';
-    noticeText.style.display = 'block';
-  }
   applePayButton.style.display = available ? 'block' : 'none';
   noticeText.style.display = available ? 'none' : 'block';
 })
