@@ -50,7 +50,11 @@
     <script type="text/javascript">
       Payjp.setPublicKey('pk_live_d02a0b16c0013dd5356f34ed');
 
-      function checkAvailabilityHandler(available) {
+      function checkAvailabilityHandler(available, message) {
+        if (message) {
+          console.error(message);
+          alert(message);
+        }
         if (available) {
           document.getElementById('apple-pay-button-wrapper').style.display = 'block';
           document.getElementById('notice').style.display = 'none';
