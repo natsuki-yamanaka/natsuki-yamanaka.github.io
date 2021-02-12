@@ -64,6 +64,7 @@
       Payjp.setPublicKey(pk);
 
       function checkAvailabilityHandler(available) {
+        console.log("apple pay availabirity checked: " + (available ? 'ok' : 'not ok'))
         if (available) {
           document.getElementById('apple-pay-button-wrapper').style.display = 'block';
           document.getElementById('notice').style.display = 'none';
