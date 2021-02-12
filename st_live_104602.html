@@ -55,11 +55,12 @@ payjp.retrieveAvailability().then((r) => console.log('retrieveAvailability', r))
 
 // test ApplePayOnTheWeb
 const applePayButton = document.getElementById('apple-pay-button')
-const noticeText = document.getElementById('apple-pay-button')
+const applePayButtonWrapper = document.getElementById('apple-pay-button-wrapper')
+const noticeText = document.getElementById('notice')
 payjp.applePay.checkAvailability(function checkAvailabilityHandler(available, errMsg) {
   console.log("apple pay availabirity checked: " + (available ? 'ok' : errMsg))
-  document.getElementById('apple-pay-button-wrapper').style.display = available ? 'block' : 'none';
   applePayButton.style.display = available ? 'block' : 'none';
+  applePayButtonWrapper.style.display = available ? 'block' : 'none';
   noticeText.style.display = available ? 'none' : 'block';
 })
 applePayButton.addEventListener('click', function onClick() {
