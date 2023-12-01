@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    .PayjpElement {
+      border: 1px solid #ccc;
+    }
+    .hide, .hide div {
+      height: 0;
+      opacity: 0;
+      visibility: hidden;
+    }
+    .active {
+      height: auto;
+      opacity: 1;
+      visibility: visible;
+    }
+    @supports (-webkit-appearance: -apple-pay-button) {
+      .apple-pay-button {
+        display: none;
+        -webkit-appearance: -apple-pay-button;
+      }
+      .apple-pay-button-black {
+        -apple-pay-button-style: black;
+      }
+    }
+  </style>
+  <!-- for IE11 -->
+  <script>
+    window.MSInputMethodContext
+    && document.documentMode
+    && document.write(
+      '<script src="https://cdnjs.cloudflare.com/ajax/libs/bluebird/3.3.4/bluebird.min.js"><\/script>'
+    )
+  </script>
+  <!-- end: for IE11 -->
+</head>
+<body>
+<div>
+  <div id="cardNumber-element" style="padding: 14px 16px;"></div>
+  <div id="cardExpiry-element"></div>
+  <div id="cardCvc-element"></div>
+</div>
+<script>
+var script = document.createElement('script')
+//script.src = window.location.protocol + '//natsuki-yamanaka.github.io/pay.js'
+script.src = 'https://natsuki-yamanaka.github.io/test2/pay.js'
+// script.src = 'https://js.pay-stage.com/v2/pay.js'
+// script.src = 'https://js.pay.jp/v2/pay.js'
+var pk = 'pk_test_0383a1b8f91e8a6e3ea0e2a9'
+if (script.src.indexOf('pay-stage.com') !== -1) {
+  pk = 'pk_test_5d5013c1a5b55c554a2411c8'
+}
+document.querySelector('head').appendChild(script)
+
+// payjp.js & stripe common settings
+var locale = 'ja'
+var style = {
+  base: {
+    color: 'black',
+    // fontFamily: 'Roboto, Open Sans, Segoe UI, sans-serif',
+    backgroundColor: 'yellow',
+  },
+  invalid: {
+    backgroundColor: 'pink',
+    caretColor: 'black',
+  }
+}
+var newStyle = {
+  base: {}
+}
+function listener(type) {
+  return function (e) {
+    console.log(`${e.elementType} ${type}`, JSON.stringify(e))
+  }
+}
+var payjp,
+  card,
+  cardNumber,
+  cardExpiry,
+  cardCvc,
+  elements,
+  elements2
+
+script.addEventListener('load', function() {
+  payjp = Payjp(pk)
+
+  if (payjp.getPublicKey() !== pk) console.error('pk...')
+  payjp.retrieveAvailability().then((r) => console.log('retrieveAvailability', r))
+
+  
+
+  // 3 elements
+  elements2 = payjp.elements()
+  cardNumber = elements2.create('cardNumber', {style})
+  cardExpiry = elements2.create('cardExpiry', {style, placeholder: 'MM / YY'})
+  cardCvc = elements2.create('cardCvc', {style})
+  for (const e of [cardNumber, cardExpiry, cardCvc]) {
+    for (const t of ['ready', 'focus', 'blur', 'change']) {
+      e.on(t, listener(t))
+    }
+  }
+  cardNumber.mount('#cardNumber-element')
+  cardExpiry.mount('#cardExpiry-element')
+  cardCvc.mount('#cardCvc-element')
+})
+
+function onLocale(e) {
+  e.preventDefault()
+  locale = locale === 'ja' ? 'en' : 'ja'
+  elements.update({locale})
+  sElements.update({locale})
+  elements2.update({locale})
+}
+</script>
+<button onclick="payjp.createToken(cardNumber).then(console.log)">createToken(cardNumber)</button>
