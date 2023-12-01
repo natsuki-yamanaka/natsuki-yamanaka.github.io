@@ -57,17 +57,18 @@ document.querySelector('head').appendChild(script)
 
 // payjp.js & stripe common settings
 var locale = 'ja'
-var style = {
-  base: {
-    color: 'black',
-    // fontFamily: 'Roboto, Open Sans, Segoe UI, sans-serif',
-    backgroundColor: 'yellow',
-  },
-  invalid: {
-    backgroundColor: 'pink',
-    caretColor: 'black',
-  }
-}
+// var style = {
+//   base: {
+//     color: 'black',
+//     // fontFamily: 'Roboto, Open Sans, Segoe UI, sans-serif',
+//     backgroundColor: 'yellow',
+//   },
+//   invalid: {
+//     backgroundColor: 'pink',
+//     caretColor: 'black',
+//   }
+// }
+var style = {base:{}}
 var newStyle = {
   base: {}
 }
@@ -115,4 +116,5 @@ function onLocale(e) {
   elements2.update({locale})
 }
 </script>
+<br><br><br><br><br>
 <button onclick="payjp.createToken(cardNumber).then(console.log)">createToken(cardNumber)</button>
