@@ -38,11 +38,22 @@
   <!-- end: for IE11 -->
 </head>
 <body>
-<div>
-  <div id="cardNumber-element" style="padding: 14px 16px;"></div>
-  <div id="cardExpiry-element"></div>
-  <div id="cardCvc-element"></div>
-</div>
+  <div>
+    <label for="cardNumber-element">
+    <div id="cardNumber-element" style="padding: 14px 16px;"></div>
+    <br>カード番号
+  </label>
+  <br><br>
+  <label for="cardExpiry-element">
+    <div id="cardExpiry-element"></div>
+    <br>有効期限
+  </label>
+  <br><br>
+  <label for="cardCvc-element">
+    <div id="cardCvc-element"></div>
+    <br>CVC
+  </label>
+  </div>
 <script>
 var script = document.createElement('script')
 script.src = window.location.protocol + '//natsuki-yamanaka.github.io/pay.js'
