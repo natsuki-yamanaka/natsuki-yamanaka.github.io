@@ -51,7 +51,7 @@ var payjp = Payjp(pk)
 if (payjp.getPublicKey() !== pk) console.error('pk...')
 
 // test retrieveAvailability
-payjp.retrieveAvailability().then((r) => console.log('retrieveAvailability', r))
+// payjp.retrieveAvailability().then((r) => console.log('retrieveAvailability', r))
 
 // test ApplePayOnTheWeb
 const applePayButton = document.getElementById('apple-pay-button')
