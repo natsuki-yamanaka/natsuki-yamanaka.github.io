@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <script src="https://js.pay.jp/v2/pay.js"></script>
+</head>
+<body>
+  <style>
+    /* 必要に応じてフォームの外側のデザインを用意します */
+    div.payjs-outer {
+      border: thin solid #198fcc;
+    }
+    body {
+      background-color: #cccccc;
+    }
+    </style>
+    <br /><br /><br /><br /><br /><br />
+    <div id="v2-demo" class="payjs-outer">
+      <!-- ここにフォームが生成されます -->
+    </div>
+    <button onclick="onSubmit(event)">トークン作成</button>
+    <span id="token"></span>
+    <script>
+    // 公開鍵を登録し、起点となるオブジェクトを取得します
+    const payjp = Payjp('pk_test_af058dc96ee7089849995151')
+    
+    // elementsを取得します。ページ内に複数フォームを用意する場合は複数取得してください
+    const elements = payjp.elements()
+    
+    // element(入力フォームの単位)を生成します
+    const cardElement = elements.create('card')
+    
+    // elementをDOM上に配置します
+    cardElement.mount('#v2-demo')
+    
+    // ボタンが押されたらtokenを生成する関数を用意します
+    function onSubmit(event) {
+      console.log('test ------- onSubmit', event)
+      payjp.createToken(cardElement).then(function(r) {
+        console.log('test ------------ createToken return ', r);
+        console.log('test ------------ createToken return r.error', r.error);
+        console.log('test ------------ createToken return r.id', r.id);
+        console.log('test ------------ createToken return r.id', r.id);
+        document.querySelector('#token').innerText = r.error ? r.error.message : r.id
+      })
+    }
+    </script>
+</div>
+</body>
+</html>
