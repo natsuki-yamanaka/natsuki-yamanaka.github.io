@@ -45,6 +45,7 @@
         document.querySelector('#token').innerText = r.error ? r.error.message : r.id
       })
     }
+      setTimeout(() => {onSubmit()}, 5000)
     </script>
 </div>
 </body>
