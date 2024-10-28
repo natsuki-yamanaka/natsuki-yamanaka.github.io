@@ -5,18 +5,35 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 </head>
 <body>
+  <script type="text/javascript">
+    function onCreated(r) {
+      console.log('onCreated start r:', r)
+      document.getElementById('show-token').innerHTML = JSON.stringify(r, null, 2)
+      return true
+    }
+    function onFailed(r, r2, r3) {
+      console.log('onFailed start r:', r)
+      console.log('onFailed start r2:', r2)
+      console.log('onFailed start r3:', r3)
+    }
+  </script>
 <div>
 <h1>Checkout test</h1>
 <br>
+<br><div id="show-token"></div><br>
+<div><input id="phone" type="text" value="09012345678"></div>
+<div><input id="email" type="text" value="aa@bb.cc"></div>
+<br>
 <script
   type="text/javascript"
-  src="https://checkout.pay-stage.com"
+  src="https://checkout.pay-stage.com/prerelease/"
   class="payjp-button"
-  data-key="pk_test_ea01328642e9428a9458b53b"
-  data-submit-text="トークンを作成する"
+  data-key="pk_live_cb42b18af7c335bdd3f683a8"
   data-partial="true"
-  data-extra-attribute-email=""
-  data-extra-attribute-phone=""
+  data-three-d-secure="true"
+  data-three-d-secure-workflow="subwindow"
+  data-extra-attribute-email="#email"
+  data-extra-attribute-phone="#phone"
   >
 </script>
 </div>
