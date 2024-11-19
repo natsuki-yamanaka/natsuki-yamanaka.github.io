@@ -61,7 +61,8 @@
       }
       var pk = parse('pk') || 'pk_test_0383a1b8f91e8a6e3ea0e2a9';
       console.log('pk', pk);
-      Payjp.setPublicKey(pk);
+      var payjp = Payjp(pk);
+      // Payjp.setPublicKey(pk);
 
       function checkAvailabilityHandler(available) {
         console.log("apple pay availabirity checked: " + (available ? 'ok' : 'not ok'))
@@ -107,7 +108,7 @@
       }
       document.getElementById('apple-pay-button').addEventListener('click', onClick);
 
-      Payjp.applePay.checkAvailability(checkAvailabilityHandler);
+      payjp.applePay.checkAvailability(checkAvailabilityHandler);
     </script>
   </body>
 </html>
