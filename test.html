@@ -1,127 +1,140 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <style>
-    .PayjpElement {
-      border: 1px solid #ccc;
-    }
-    .hide, .hide div {
-      height: 0;
-      opacity: 0;
-      visibility: hidden;
-    }
-    .active {
-      height: auto;
-      opacity: 1;
-      visibility: visible;
-    }
-    @supports (-webkit-appearance: -apple-pay-button) {
-      .apple-pay-button {
-        display: none;
-        -webkit-appearance: -apple-pay-button;
-      }
-      .apple-pay-button-black {
-        -apple-pay-button-style: black;
-      }
-    }
-  </style>
-  <!-- for IE11 -->
-  <script>
-    window.MSInputMethodContext
-    && document.documentMode
-    && document.write(
-      '<script src="https://cdnjs.cloudflare.com/ajax/libs/bluebird/3.3.4/bluebird.min.js"><\/script>'
-    )
-  </script>
-  <!-- end: for IE11 -->
-</head>
-<body>
+<!DOCTYPE html><html><head><meta name="viewport" content="width=device-width, initial-scale=1" /></head><body>
   <div>
-    <label for="cardNumber-element">
-    <div id="cardNumber-element" style="padding: 14px 16px;"></div>
-    <br>カード番号
-  </label>
-  <br><br>
-  <label for="cardExpiry-element">
-    <div id="cardExpiry-element"></div>
-    <br>有効期限
-  </label>
-  <br><br>
-  <label for="cardCvc-element">
-    <div id="cardCvc-element"></div>
-    <br>CVC
-  </label>
+    <style>
+      .PayjpElement {
+        border: 1px solid #ccc;
+      }
+      #payjp-wrapper {
+        display: block;
+      }
+    </style>
+    <p>payjp.js card-element</p>
+    テナントID: <input id="tenant_id" type="text"/>(テストモード: ten_874f94b662fbe558c8b7a45d649e, ライブモード ten_fee66312d03ffdd824d86a7a9457)<br>
+    workflow: <input id="workflow" type="text" value="subwindow"/><br>
+    <br>
+    3DS: <input id="3ds" type="checkbox"/><br>
+    openThreeDSecureDialog ID: <input id="tdsid" type="text"/><br>
+    <br>
+    <div id="payjp-wrapper">
+      <div id="card-number-element"></div>
+      <div id="card-exp-element"></div>
+      <div id="card-cvc-element"></div>
+    </div>
+      <div id="result" style="margin:0 auto;padding:10px 20px;">ここに結果</div>
+      <button id="loadjs">loadJS</button>
+      <br><button id="createToken">createToken</button>
+      <br><button id="openThreeDSecureDialog">openThreeDSecureDialog</button>
+      <br><button id="openThreeDSecureIframe">openThreeDSecureIframe</button>
+      <br><button id="update">element.update()でheight更新</button>
+      <br><button id="focus">element.focus()</button>
+      <br><button id="blur">element.blur()</button>
+
   </div>
-<script>
-var script = document.createElement('script')
-// script.src = window.location.protocol + '//natsuki-yamanaka.github.io/pay.js'
-// script.src = 'https://js.pay-stage.com/v2/pay.js'
-script.src = 'https://js.pay.jp/v2/pay.js'
-var pk = 'pk_test_0383a1b8f91e8a6e3ea0e2a9'
-if (script.src.indexOf('pay-stage.com') !== -1) {
-  pk = 'pk_test_5d5013c1a5b55c554a2411c8'
-}
-document.querySelector('head').appendChild(script)
-
-// payjp.js & stripe common settings
-var locale = 'ja'
-var style = {
-  base: {
-    color: 'black',
-    // fontFamily: 'Roboto, Open Sans, Segoe UI, sans-serif',
-    backgroundColor: 'yellow',
-  },
-  invalid: {
-    backgroundColor: 'pink',
-    caretColor: 'black',
+  <script>
+  var payjp,
+    elements,
+    numberElement,
+    expiryElement,
+    cvcElement
+  const wideStyle = {
+    base: {
+      lineHeight: "46px",
+    },
   }
-}
-var newStyle = {
-  base: {}
-}
-function listener(type) {
-  return function (e) {
-    console.log(`${e.elementType} ${type}`, JSON.stringify(e))
+  const defalutStyle = {
+    base: {
+      lineHeight: "16px",
+    },
   }
-}
-var payjp,
-  card,
-  cardNumber,
-  cardExpiry,
-  cardCvc,
-  elements,
-  elements2
+    var script = document.createElement('script')
+  script.src = 'https://js.pay-stage.com/v2/pay.js'
+  document.querySelector('head').appendChild(script)
 
-script.addEventListener('load', function() {
-  payjp = Payjp(pk)
 
-  if (payjp.getPublicKey() !== pk) console.error('pk...')
-  payjp.retrieveAvailability().then((r) => console.log('retrieveAvailability', r))
-
+  window.addEventListener('load', function() {
+    document.getElementById('loadjs').addEventListener('click', function() {
+      // テストモード
+      var pk = document.getElementById('tenant_id').value ? 'pk_test_e63eb7453ba5faadb3ecce96' : 'pk_test_a6cbb6dbe7d51925fea2bee9' // 通常加盟店
+      const separateTypeElement = false  // 分割型フォームにするかどうか
+      
+      
+      const workflow = document.getElementById('workflow').value
+      payjp = Payjp(pk, {threeDSecureWorkflow: workflow})
+      elements = payjp.elements()
+      
+      if (separateTypeElement) {
+          // 分割型
+          numberElement = elements.create('cardNumber')
+          expiryElement = elements.create('cardExpiry')
+          cvcElement = elements.create('cardCvc')
+      
+          numberElement.mount('#card-number-element')
+          expiryElement.mount('#card-exp-element')
+          cvcElement.mount('#card-cvc-element')
+      } else {
+        // 統合型
+        numberElement = elements.create('card')
+        numberElement.mount('#card-number-element')
+      }
+      for (let eventName of ['change','ready','blur','focus']) {
+        for (let elementObj of [numberElement, expiryElement, cvcElement]) {
+          if (!elementObj) continue
+          elementObj.on(eventName, function(event) {
+            console.log('test --- ' + eventName + ' -- ', event, elementObj);
+          })
+        }
+      }
   
+    })
+    
+    let counter = 0
+    document.getElementById('update').addEventListener('click', function() {
+      if (counter % 2 == 0) {
+        numberElement.update({style: wideStyle})
+        if (expiryElement)expiryElement.update({style: wideStyle})
+        if (cvcElement)cvcElement.update({style: wideStyle})
+      } else {
+        numberElement.update({style: defalutStyle})
+        if (expiryElement)expiryElement.update({style: defalutStyle})
+        if (cvcElement)cvcElement.update({style: defalutStyle})
+      }
+      counter++
+    })
 
-  // 3 elements
-  elements2 = payjp.elements()
-  cardNumber = elements2.create('cardNumber', {style})
-  cardExpiry = elements2.create('cardExpiry', {style, placeholder: 'MM / YY'})
-  cardCvc = elements2.create('cardCvc', {style})
-  for (const e of [cardNumber, cardExpiry, cardCvc]) {
-    for (const t of ['ready', 'focus', 'blur', 'change']) {
-      e.on(t, listener(t))
-    }
+    document.getElementById('createToken').addEventListener('click', function() {
+      const paramEx = {card: {name: 'TEST123', email: 'test@example.local'}}
+      const tenantId = document.getElementById('tenant_id').value
+      if (tenantId) {
+        paramEx.tenant = tenantId
+      }
+      let tds = document.getElementById('3ds').checked
+      if (tds) {
+        paramEx.three_d_secure = true
+      }
+      payjp.createToken(numberElement, paramEx).then(OnTokenCreated).catch(OnError)
+    })
+    document.getElementById('openThreeDSecureDialog').addEventListener('click', function() {
+      const tdsId = document.getElementById('tdsid').value
+      payjp.openThreeDSecureDialog(tdsId).then(OnTokenCreated).catch(OnError)
+    })
+    document.getElementById('openThreeDSecureIframe').addEventListener('click', function() {
+      const tdsId = document.getElementById('tdsid').value
+      payjp.openThreeDSecureIframe(tdsId).then(OnTokenCreated).catch(OnError)
+    })
+    document.getElementById('focus').addEventListener('click', function() {
+      numberElement.focus()
+    })
+    document.getElementById('blur').addEventListener('click', function() {
+      numberElement.blur()
+    })
+  })
+  function OnTokenCreated(result) {
+    console.log('OnTokenCreated result:', result)
+    document.getElementById('result').textContent = result && result.id ? result.id : JSON.stringify(result)
   }
-  cardNumber.mount('#cardNumber-element')
-  cardExpiry.mount('#cardExpiry-element')
-  cardCvc.mount('#cardCvc-element')
-})
-
-function onLocale(e) {
-  e.preventDefault()
-  locale = locale === 'ja' ? 'en' : 'ja'
-  elements.update({locale})
-  sElements.update({locale})
-  elements2.update({locale})
-}
-</script>
+  function OnError(result) {
+    console.log('OnError result:', result)
+    document.getElementById('result').textContent = result instanceof Error ? result.message : JSON.stringify(result)
+  }
+  </script>
+  </body></html>
