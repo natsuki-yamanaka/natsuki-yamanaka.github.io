@@ -10,31 +10,6 @@
 
     </body>
     <script>
-        function onFailed(response) {
-            console.log('test --- onFailed', response);
-            alert('test --- onFailed');
-        }
-        function onCreated(response) {
-            console.log('test --- onCreated', response);
-            document.getElementById('token').innerHTML = response.id;
-            alert('test --- onCreated');
-        }
-    </script>
-
-    <script
-    type="text/javascript"
-    src="https://checkout.pay.jp"
-    class="payjp-button"
-    data-key="pk_test_af058dc96ee7089849995151"
-    data-submit-text="トークンを作成する"
-    data-payjp-three-d-secure="true"
-    data-payjp-three-d-secure-workflow="subwindow"
-    data-on-failed="onFailed"
-    data-payjp-on-created="onCreated"
-    data-partial="true">
-    </script>
-
-    <script>
         const merchantId = 'merchant.jp.pay.sandbox'
         const canMakePaymentsResult = ApplePaySession.canMakePayments()
         document.getElementById('result1').innerHTML = 'canMakePayments() -- ' + canMakePaymentsResult
