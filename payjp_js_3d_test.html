@@ -37,7 +37,7 @@
     // ボタンが押されたらtokenを生成する関数を用意します
     function onSubmit(event) {
       console.log('test ------- onSubmit', event)
-      payjp.createToken(cardElement).then(function(r) {
+      payjp.createToken(cardElement, {three_d_secure: true}).then(function(r) {
         console.log('test ------------ createToken return ', r);
         console.log('test ------------ createToken return r.error', r.error);
         console.log('test ------------ createToken return r.id', r.id);
