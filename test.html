@@ -9,8 +9,9 @@
       }
     </style>
     <p>payjp.js card-element</p>
-    テナントID: <input id="tenant_id" type="text"/>(テストモード: ten_874f94b662fbe558c8b7a45d649e, ライブモード ten_fee66312d03ffdd824d86a7a9457)<br>
-    workflow: <input id="workflow" type="text" value="subwindow"/><br>
+    <!-- テナントID: <input id="tenant_id" type="text"/>(テストモード: ten_874f94b662fbe558c8b7a45d649e, ライブモード ten_fee66312d03ffdd824d86a7a9457)<br> -->
+     公開鍵: <input id="public_key" type="text"/><br>
+    workflow: <input id="workflow" type="text" value="iframe"/><br>
     <br>
     3DS: <input id="3ds" type="checkbox"/><br>
     openThreeDSecureDialog ID: <input id="tdsid" type="text"/><br>
@@ -47,14 +48,13 @@
     },
   }
     var script = document.createElement('script')
-  script.src = 'https://js.pay-stage.com/v2/pay.js'
+  script.src = 'https://js.pre.pay.jp'
   document.querySelector('head').appendChild(script)
 
 
   window.addEventListener('load', function() {
     document.getElementById('loadjs').addEventListener('click', function() {
-      // テストモード
-      var pk = document.getElementById('tenant_id').value ? 'pk_test_e63eb7453ba5faadb3ecce96' : 'pk_test_a6cbb6dbe7d51925fea2bee9' // 通常加盟店
+      var pk = document.getElementById('public_key').value
       const separateTypeElement = false  // 分割型フォームにするかどうか
       
       
