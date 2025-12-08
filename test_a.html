@@ -1,0 +1,122 @@
+<!DOCTYPE html><html><head><meta name="viewport" content="width=device-width, initial-scale=1" /></head><body>
+  <div>
+    <style>
+      .PayjpElement {
+        border: 1px solid #ccc;
+      }
+      #payjp-wrapper {
+        display: block;
+      }
+      @supports (-webkit-appearance: -apple-pay-button) { 
+        .apple-pay-button {
+          display: inline-block;
+          -webkit-appearance: -apple-pay-button;
+        }
+        .apple-pay-button-black {
+          -apple-pay-button-style: black;
+        }
+      }
+      @supports not (-webkit-appearance: -apple-pay-button) {
+        .apple-pay-button {
+          display: inline-block;
+          background-size: 100% 60%;
+          background-repeat: no-repeat;
+          background-position: 50% 50%;
+          border-radius: 5px;
+          padding: 0px;
+          box-sizing: border-box;
+          min-width: 200px;
+          min-height: 32px;
+          max-height: 64px;
+        }
+        .apple-pay-button-black {
+          background-image: -webkit-named-image(apple-pay-logo-white);
+          background-color: black;
+        }
+      }
+    </style>
+
+    <div id='notice' style="display:none;">
+      ここにApple Payの支払いボタンが表示されます。表示されない場合は<a href="https://pay.jp/docs/apple-pay-integrate-web" target="_blank" rel="noopener">こちら</a>の「Apple Pay on the Web が利用可能か判定する」に詳細条件を記載しておりますのでご確認ください。
+    </div>
+    <div id="apple-pay-button-wrapper" style="display:none;">
+      <div id="apple-pay-button" class="apple-pay-button apple-pay-button-black"></div>
+      ※動作確認用サンプルのため実行しても実際の決済は行われません
+    </div>
+    <div>
+      <p id="result"></p>
+    </div>
+
+
+    js: <input id="js" type="text" value="https://js.pay.jp"/><br> 
+    公開鍵: <input id="public_key" type="text"/><br>
+    <br>
+      <button id="loadjs">loadJS</button>
+
+  </div>
+  <script>
+  var payjp,
+    elements,
+    numberElement,
+    expiryElement,
+    cvcElement
+  const wideStyle = {
+    base: {
+      lineHeight: "46px",
+    },
+  }
+  const defalutStyle = {
+    base: {
+      lineHeight: "16px",
+    },
+  }
+
+
+  window.addEventListener('load', function() {
+    document.getElementById('loadjs').addEventListener('click', function() {
+      var script = document.createElement('script')
+      script.src = document.getElementById('js').value
+      document.querySelector('head').appendChild(script)
+
+      var pk = document.getElementById('public_key').value
+      const separateTypeElement = false  // 分割型フォームにするかどうか
+      
+      
+      const workflow = document.getElementById('workflow').value
+      payjp = Payjp(pk, {threeDSecureWorkflow: workflow})
+      payjp.applePay.checkAvailability((available) => {
+        if (available) {
+          document.getElementById('apple-pay-button-wrapper').style.display = 'block';
+          document.getElementById('notice').style.display = 'none';
+        } else {
+          document.getElementById('apple-pay-button-wrapper').style.display = 'none';
+          document.getElementById('notice').style.display = 'block';
+        }
+      });
+      document.getElementById('apple-pay-button').addEventListener('click', () => {
+        var paymentRequest = {
+          countryCode: 'JP',
+          currencyCode: 'JPY',
+          total: {
+            label: 'Test Item',
+            amount: '50'
+          }
+        };
+        const session = payjp.applePay.buildSession(paymentRequest,
+          function (result) {
+            console.log(result);
+            document.getElementById('result').innerText = 'Token = ' + result.token.id;
+            session.completePayment(ApplePaySession.STATUS_SUCCESS);
+          },
+          function (e) {
+            console.error(e);
+            alert(e.error.message);
+          }
+        );
+        session.begin();
+      });
+    });
+  })
+
+  </script>
+  </body></html>
