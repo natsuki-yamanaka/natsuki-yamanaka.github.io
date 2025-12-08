@@ -72,47 +72,55 @@
   }
 
 
-  window.addEventListener('load', function() {
     document.getElementById('loadjs').addEventListener('click', function() {
+      const loadJs = () => {
+        var pk = document.getElementById('public_key').value
+        payjp = Payjp(pk, {threeDSecureWorkflow: 'iframe'})
+        const displayApplePayButton = (available) => {
+          if (available) {
+            document.getElementById('apple-pay-button-wrapper').style.display = 'block';
+            document.getElementById('notice').style.display = 'none';
+          } else {
+            document.getElementById('apple-pay-button-wrapper').style.display = 'none';
+            document.getElementById('notice').style.display = 'block';
+          }
+        }
+        try {
+          payjp.applePay.checkAvailability(displayApplePayButton);
+        } catch (e) {
+          displayApplePayButton(false)
+          console.error('checkAvailability error', e);
+          return;
+        }
+        document.getElementById('apple-pay-button').addEventListener('click', () => {
+          var paymentRequest = {
+            countryCode: 'JP',
+            currencyCode: 'JPY',
+            total: {
+              label: 'Test Item',
+              amount: '50'
+            }
+          };
+          const session = payjp.applePay.buildSession(paymentRequest,
+            function (result) {
+              console.log(result);
+              document.getElementById('result').innerText = 'Token = ' + result.token.id;
+              session.completePayment(ApplePaySession.STATUS_SUCCESS);
+            },
+            function (e) {
+              console.error(e);
+              alert(e.error.message);
+            }
+          );
+          session.begin();
+        });
+      }
+
       var script = document.createElement('script')
       script.src = document.getElementById('js').value
+      script.onload = loadJs
       document.querySelector('head').appendChild(script)
-
-      var pk = document.getElementById('public_key').value
-      payjp = Payjp(pk, {threeDSecureWorkflow: 'iframe'})
-      payjp.applePay.checkAvailability((available) => {
-        if (available) {
-          document.getElementById('apple-pay-button-wrapper').style.display = 'block';
-          document.getElementById('notice').style.display = 'none';
-        } else {
-          document.getElementById('apple-pay-button-wrapper').style.display = 'none';
-          document.getElementById('notice').style.display = 'block';
-        }
-      });
-      document.getElementById('apple-pay-button').addEventListener('click', () => {
-        var paymentRequest = {
-          countryCode: 'JP',
-          currencyCode: 'JPY',
-          total: {
-            label: 'Test Item',
-            amount: '50'
-          }
-        };
-        const session = payjp.applePay.buildSession(paymentRequest,
-          function (result) {
-            console.log(result);
-            document.getElementById('result').innerText = 'Token = ' + result.token.id;
-            session.completePayment(ApplePaySession.STATUS_SUCCESS);
-          },
-          function (e) {
-            console.error(e);
-            alert(e.error.message);
-          }
-        );
-        session.begin();
-      });
     });
-  })
 
   </script>
   </body></html>
