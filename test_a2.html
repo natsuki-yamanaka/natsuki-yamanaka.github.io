@@ -1,0 +1,138 @@
+<!DOCTYPE html><html><head><meta name="viewport" content="width=device-width, initial-scale=1" /></head><body>
+  <div>
+        <style>
+      @supports (-webkit-appearance: -apple-pay-button) { 
+        .apple-pay-button {
+          display: inline-block;
+          -webkit-appearance: -apple-pay-button;
+        }
+        .apple-pay-button-black {
+          -apple-pay-button-style: black;
+        }
+      }
+      @supports not (-webkit-appearance: -apple-pay-button) {
+        .apple-pay-button {
+          display: inline-block;
+          background-size: 100% 60%;
+          background-repeat: no-repeat;
+          background-position: 50% 50%;
+          border-radius: 5px;
+          padding: 0px;
+          box-sizing: border-box;
+          min-width: 200px;
+          min-height: 32px;
+          max-height: 64px;
+        }
+        .apple-pay-button-black {
+          background-image: -webkit-named-image(apple-pay-logo-white);
+          background-color: black;
+        }
+      }
+    </style>
+
+    <div id="apple-pay-button-wrapper">
+      <div id="apple-pay-button" class="apple-pay-button apple-pay-button-black"></div>
+      ※動作確認用サンプルのため実行しても実際の決済は行われません
+    </div>
+    <div>
+      <p id="result"></p>
+    </div>
+
+
+    公開鍵: <input id="public_key" type="text" value="pk_live_d02a0b16c0013dd5356f34ed"/><br>
+    API BASE URL: <input id="base_url" type="text" value="api.pay-stage.com"/><br>
+    merchantId: <input id="merchant_id" type="text" value="5c37c186-da86-47ee-bb3c-5e0f2af71077"/><br>
+    <br>
+
+  </div>
+  <script>
+    document.getElementById('apple-pay-button').addEventListener('click', () => {
+      console.log('click -- start');
+      var paymentRequest = {
+        countryCode: 'JP',
+        currencyCode: 'JPY',
+        total: {
+          label: 'Test Item',
+          amount: '50'
+        }
+      };
+      const merchantId = document.getElementById('merchant_id').value;
+      const buildSession = (paymentRequest) => {
+        console.log('buildSession -- paymentRequest', paymentRequest);
+        paymentRequest.merchantCapabilities = ['supports3DS']
+        paymentRequest.supportedNetworks = ['amex', 'discover', 'jcb', 'masterCard', 'visa']
+
+        // user gesture handlerから発火されないとここでSafariが例外
+        const applePaySession = new ApplePaySession(2, paymentRequest)
+
+        applePaySession.onvalidatemerchant = (event) => {
+          console.log('onvalidatemerchant -- event', event);
+          const params = {
+            domain: window.location.host,
+            'validation_url': event.validationURL,
+            'display_name': window.location.host,
+          }
+          console.log('request -- params', params);
+
+          // 公開鍵の取得
+          const publicKey = document.getElementById('public_key').value;
+          const baseUrl = document.getElementById('base_url').value;
+
+          // Basic認証ヘッダーの作成
+          const authHeader = 'Basic ' + btoa(publicKey + ':');
+
+          // URLSearchParamsでフォームデータを作成
+          const formData = new URLSearchParams();
+          for (const key in params) {
+            formData.append(key, params[key]);
+          }
+
+          // fetchでリクエスト
+          fetch(`https://${baseUrl}/v1/accounts/apple_pay/sessions`, {
+            method: 'POST',
+            headers: {
+              'Authorization': authHeader,
+              'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body: formData.toString()
+          })
+          .then(response => response.json())
+          .then((response) => {
+            console.log('accounts/apple_pay/sessions -- response', response);
+            if (response.error) {
+              applePaySession.completeMerchantValidation({})
+              alert('failed accounts/apple_pay/sessions')
+            } else {
+              applePaySession.completeMerchantValidation(response)
+            }
+          })
+          .catch((error) => {
+            console.error('fetch error:', error);
+            applePaySession.completeMerchantValidation({})
+            alert('failed accounts/apple_pay/sessions')
+          })
+        }
+
+        applePaySession.onpaymentauthorized = (event) => {
+          const payment = event.payment
+          console.log('applePaySession -- event.payment', event.payment);
+          const requestData = encodeURI(JSON.stringify(payment.token.paymentData))
+          console.log('applePaySession -- requestData', requestData);
+          applePaySession.completePayment(ApplePaySession.STATUS_SUCCESS)
+        }
+
+        session.begin();
+      }
+
+      ApplePaySession.canMakePaymentsWithActiveCard(merchantId).then((result) => {
+        console.log('ApplePaySession.canMakePaymentsWithActiveCard -- ', result, merchantId);
+        if (result) {
+          buildSession(paymentRequest)
+        } else {
+          alert('failed ApplePaySession.canMakePaymentsWithActiveCard', result)
+        }
+      })
+      
+    });
+  </script>
+  </body></html>
