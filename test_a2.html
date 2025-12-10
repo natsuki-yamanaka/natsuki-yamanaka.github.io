@@ -124,15 +124,15 @@
         session.begin();
       }
 
-      ApplePaySession.canMakePaymentsWithActiveCard(merchantId).then((result) => {
+      buildSession(paymentRequest)
+      
+    });
+
+    ApplePaySession.canMakePaymentsWithActiveCard(merchantId).then((result) => {
         console.log('ApplePaySession.canMakePaymentsWithActiveCard -- ', result, merchantId);
-        if (result) {
-          buildSession(paymentRequest)
-        } else {
+        if (!result) {
           alert('failed ApplePaySession.canMakePaymentsWithActiveCard', result)
         }
       })
-      
-    });
   </script>
   </body></html>
