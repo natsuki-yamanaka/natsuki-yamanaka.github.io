@@ -121,7 +121,7 @@
           applePaySession.completePayment(ApplePaySession.STATUS_SUCCESS)
         }
 
-        session.begin();
+        applePaySession.begin();
       }
 
       buildSession(paymentRequest)
